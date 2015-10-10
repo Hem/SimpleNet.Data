@@ -12,9 +12,21 @@ namespace SimpleNet.Data.Repository
         public  abstract ISimpleDataAccess Database { get; set; }
 
 
+        protected IEnumerable<T> Read<T>(DbConnection connection, IRowMapper<T> mapper, string commandText, CommandType commandType, DbParameter[] parameters)
+        {
+            return Database.Read(connection, mapper, commandText, commandType, parameters);
+        }
+
         protected IEnumerable<T> Read<T>(IRowMapper<T> mapper, string commandText, CommandType commandType, DbParameter[] parameters)
         {
             return Database.Read(mapper, commandText, commandType, parameters);
+        }
+
+
+        protected Task<IEnumerable<T>> ReadAsync<T>(DbConnection connection, IRowMapper<T> mapper, string commandText, CommandType commandType,
+            DbParameter[] parameters)
+        {
+            return Database.ReadAsync(connection, mapper, commandText, commandType, parameters);
         }
 
         protected Task<IEnumerable<T>> ReadAsync<T>(IRowMapper<T> mapper, string commandText, CommandType commandType,
@@ -23,14 +35,33 @@ namespace SimpleNet.Data.Repository
             return Database.ReadAsync(mapper, commandText, commandType, parameters);
         }
 
+
+        protected int ExecuteNonQuery(DbConnection connection, string commandText, CommandType commandType, DbParameter[] parameters)
+        {
+            return Database.ExecuteNonQuery(connection, commandText, commandType, parameters);
+        }
+
+
         protected int ExecuteNonQuery(string commandText, CommandType commandType, DbParameter[] parameters)
         {
             return Database.ExecuteNonQuery(commandText, commandType, parameters);
         }
 
+
+        protected object ExecuteScalar(DbConnection connection, string commandText, CommandType commandType, DbParameter[] parameters)
+        {
+            return Database.ExecuteScalar(connection, commandText, commandType, parameters);
+        }
+
         protected object ExecuteScalar(string commandText, CommandType commandType, DbParameter[] parameters)
         {
             return Database.ExecuteScalar(commandText, commandType, parameters);
+        }
+
+
+        protected DataTable Read(DbConnection connection, string commandText, CommandType commandType, DbParameter[] parameters)
+        {
+            return Database.Read(connection, commandText, commandType, parameters);
         }
 
         protected DataTable Read(string commandText, CommandType commandType, DbParameter[] parameters)

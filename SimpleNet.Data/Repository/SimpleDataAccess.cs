@@ -16,7 +16,7 @@ namespace SimpleNet.Data.Repository
         /// <summary>
         /// override this in your Sql Repository Implementation.
         /// </summary>
-        protected ISimpleSqlConnectionProvider SqlConnectionInfo { get;  }
+        protected ISimpleSqlConnectionProvider SqlConnectionInfo { get; }
 
 
         #region constructor
@@ -52,31 +52,46 @@ namespace SimpleNet.Data.Repository
         /// <returns>The records populated into a dataset/data table.</returns>
         public DataTable Read(string commandText, CommandType commandType, DbParameter[] parameters)
         {
+            using (var connection = SqlConnectionInfo.GetConnection())
+            {
+                return Read(connection, commandText, commandType, parameters);
+            }
+        }
+
+        /// <summary>
+        /// Execute a read against the database and returns the dataset.
+        /// </summary>
+        /// <param name="connection">An open database connection </param>
+        /// <param name="commandText">The sql or procedure name to execute</param>
+        /// <param name="commandType">The command type</param>
+        /// <param name="parameters">An array || a list of parameters to pass to the command</param>
+        /// <param name="transaction"></param>
+        /// <returns>The records populated into a dataset/data table.</returns>
+        public DataTable Read(DbConnection connection, string commandText, CommandType commandType, DbParameter[] parameters, DbTransaction transaction = null)
+        {
             var dataTable = new DataTable();
 
             try
             {
-                using (var connection = SqlConnectionInfo.GetConnection())
+
+                using (var command = SqlConnectionInfo.CreateDbCommand(connection))
                 {
+                    command.CommandText = commandText;
+                    command.CommandType = commandType;
 
-                    using (var command = SqlConnectionInfo.CreateDbCommand(connection))
+                    if (transaction != null) command.Transaction = transaction;
+
+                    // Add parameters
+                    if (parameters != null)
                     {
-                        command.CommandText = commandText;
-                        command.CommandType = commandType;
-
-                        // Add parameters
-                        if (parameters != null)
-                        {
-                            command.Parameters.AddRange(parameters.ToArray());
-                        }
-
-                        var dr = command.ExecuteReader();
-
-                        dataTable.Load(dr);
-
-                        command.Parameters.Clear();
+                        command.Parameters.AddRange(parameters.ToArray());
                     }
 
+                    var dr = command.ExecuteReader();
+
+                    dataTable.Load(dr);
+
+                    command.Parameters.Clear();
                 }
 
             }
@@ -115,31 +130,45 @@ namespace SimpleNet.Data.Repository
         /// <returns>The first value returned</returns>
         public object ExecuteScalar(string commandText, CommandType commandType, DbParameter[] parameters)
         {
+            using (var connection = SqlConnectionInfo.GetConnection())
+            {
+                return ExecuteScalar(connection, commandText, commandType, parameters);
+            }
+        }
+
+        /// <summary>
+        /// Executes a command against the dataset and returns the first value received.
+        /// </summary>
+        /// <param name="connection">An open database connection </param>
+        /// <param name="commandText">The sql or procedure name to execute</param>
+        /// <param name="commandType">The command type</param>
+        /// <param name="parameters">An array || a list of parameters to pass to the command</param>
+        /// <param name="transaction"></param>
+        /// <returns>The first value returned</returns>
+        public object ExecuteScalar(DbConnection connection, string commandText, CommandType commandType, DbParameter[] parameters, DbTransaction transaction = null)
+        {
             object value;
 
             try
             {
-
-                using (var connection = SqlConnectionInfo.GetConnection())
+                using (var command = SqlConnectionInfo.CreateDbCommand(connection))
                 {
+                    command.CommandText = commandText;
+                    command.CommandType = commandType;
 
-                    using (var command = SqlConnectionInfo.CreateDbCommand(connection))
+                    if (transaction != null) command.Transaction = transaction;
+
+                    // Add parameters
+                    if (parameters != null)
                     {
-                        command.CommandText = commandText;
-                        command.CommandType = commandType;
-
-                        // Add parameters
-                        if (parameters != null)
-                        {
-                            command.Parameters.AddRange(parameters.ToArray());
-                        }
-
-                        value = command.ExecuteScalar();
-
-                        command.Parameters.Clear();
+                        command.Parameters.AddRange(parameters.ToArray());
                     }
 
+                    value = command.ExecuteScalar();
+
+                    command.Parameters.Clear();
                 }
+
             }
             catch (Exception ex)
             {
@@ -165,6 +194,8 @@ namespace SimpleNet.Data.Repository
         }
 
 
+
+
         /// <summary>
         /// Use this to execute a command against the database when a response is NOT needed 
         /// or we only need the count of number of records affected
@@ -175,31 +206,46 @@ namespace SimpleNet.Data.Repository
         /// <returns>The count of number of records affected.</returns>
         public int ExecuteNonQuery(string commandText, CommandType commandType, DbParameter[] parameters)
         {
+            using (var connection = SqlConnectionInfo.GetConnection())
+            {
+                return ExecuteNonQuery(connection, commandText, commandType, parameters);
+            }
+        }
+
+        /// <summary>
+        /// Use this to execute a command against the database when a response is NOT needed 
+        /// or we only need the count of number of records affected
+        /// </summary>
+        /// <param name="connection">An open database connection </param>
+        /// <param name="commandText">The sql or procedure name to execute</param>
+        /// <param name="commandType">The command type</param>
+        /// <param name="parameters">An array || a list of parameters to pass to the command</param>
+        /// <param name="transaction"></param>
+        /// <returns>The count of number of records affected.</returns>
+        public int ExecuteNonQuery(DbConnection connection, string commandText, CommandType commandType, DbParameter[] parameters, DbTransaction transaction = null)
+        {
             int value;
 
             try
             {
-
-                using (var connection = SqlConnectionInfo.GetConnection())
+                using (var command = SqlConnectionInfo.CreateDbCommand(connection))
                 {
+                    command.CommandText = commandText;
+                    command.CommandType = commandType;
 
-                    using (var command = SqlConnectionInfo.CreateDbCommand(connection))
+                    if (transaction != null) command.Transaction = transaction;
+
+                    // Add parameters
+                    if (parameters != null)
                     {
-                        command.CommandText = commandText;
-                        command.CommandType = commandType;
-
-                        // Add parameters
-                        if (parameters != null)
-                        {
-                            command.Parameters.AddRange(parameters.ToArray());
-                        }
-
-                        value = command.ExecuteNonQuery();
-
-                        command.Parameters.Clear();
+                        command.Parameters.AddRange(parameters.ToArray());
                     }
 
+                    value = command.ExecuteNonQuery();
+
+                    command.Parameters.Clear();
                 }
+
             }
             catch (Exception ex)
             {
@@ -241,41 +287,51 @@ namespace SimpleNet.Data.Repository
             return await ReadAsync(commandText, CommandType.StoredProcedure, parameters);
         }
 
+        
+
+        public async Task<DataTable> ReadAsync(string commandText, CommandType commandType, DbParameter[] parameters)
+        {
+            using (var connection = SqlConnectionInfo.GetConnection())
+            {
+                return await ReadAsync(connection, commandText, commandType, parameters);
+            }
+        }
+
         /// <summary>
         /// Execute a read against the database and returns the dataset.
         /// </summary>
+        /// <param name="connection"></param>
         /// <param name="commandText">The sql or procedure name to execute</param>
         /// <param name="commandType">The command type</param>
         /// <param name="parameters">An array || a list of parameters to pass to the command</param>
+        /// <param name="transaction"></param>
         /// <returns>The records populated into a dataset/data table.</returns>
-        public async Task<DataTable> ReadAsync(string commandText, CommandType commandType, DbParameter[] parameters)
+        public async Task<DataTable> ReadAsync(DbConnection connection, string commandText, CommandType commandType, DbParameter[] parameters, DbTransaction transaction = null)
         {
             var dataTable = new DataTable();
 
             try
             {
-                using (var connection = SqlConnectionInfo.GetConnection())
+                using (var command = SqlConnectionInfo.CreateDbCommand(connection))
                 {
+                    command.CommandText = commandText;
+                    command.CommandType = commandType;
 
-                    using (var command = SqlConnectionInfo.CreateDbCommand(connection))
+                    if (transaction != null) command.Transaction = transaction;
+
+                    // Add parameters
+                    if (parameters != null)
                     {
-                        command.CommandText = commandText;
-                        command.CommandType = commandType;
-
-                        // Add parameters
-                        if (parameters != null)
-                        {
-                            command.Parameters.AddRange(parameters.ToArray());
-                        }
-
-                        var dr = await command.ExecuteReaderAsync();
-
-                        dataTable.Load(dr);
-
-                        command.Parameters.Clear();
+                        command.Parameters.AddRange(parameters.ToArray());
                     }
 
+                    var dr = await command.ExecuteReaderAsync();
+
+                    dataTable.Load(dr);
+
+                    command.Parameters.Clear();
                 }
+
 
             }
             catch (Exception ex)
@@ -301,41 +357,49 @@ namespace SimpleNet.Data.Repository
             return dataTable;
         }
 
+        
+
+        public async Task<object> ExecuteScalarAsync(string commandText, CommandType commandType, DbParameter[] parameters)
+        {
+            using (var connection = SqlConnectionInfo.GetConnection())
+            {
+                return await ExecuteScalarAsync(connection, commandText, commandType, parameters);
+            }
+        }
 
         /// <summary>
         /// Executes a command against the dataset and returns the first value received.
         /// </summary>
+        /// <param name="connection"></param>
         /// <param name="commandText">The sql or procedure name to execute</param>
         /// <param name="commandType">The command type</param>
         /// <param name="parameters">An array || a list of parameters to pass to the command</param>
+        /// <param name="transaction"></param>
         /// <returns>The first value returned</returns>
-        public async Task<object> ExecuteScalarAsync(string commandText, CommandType commandType, DbParameter[] parameters)
+        public async Task<object> ExecuteScalarAsync(DbConnection connection, string commandText, CommandType commandType, DbParameter[] parameters, DbTransaction transaction = null)
         {
             object value;
 
             try
             {
-                using (var connection = SqlConnectionInfo.GetConnection())
+                using (var command = SqlConnectionInfo.CreateDbCommand(connection))
                 {
+                    command.CommandText = commandText;
+                    command.CommandType = commandType;
+                    
+                    if (transaction != null) command.Transaction = transaction;
 
-
-                    using (var command = SqlConnectionInfo.CreateDbCommand(connection))
+                    // Add parameters
+                    if (parameters != null)
                     {
-                        command.CommandText = commandText;
-                        command.CommandType = commandType;
-
-                        // Add parameters
-                        if (parameters != null)
-                        {
-                            command.Parameters.AddRange(parameters.ToArray());
-                        }
-
-                        value = await command.ExecuteScalarAsync();
-
-                        command.Parameters.Clear();
+                        command.Parameters.AddRange(parameters.ToArray());
                     }
 
+                    value = await command.ExecuteScalarAsync();
+
+                    command.Parameters.Clear();
                 }
+
             }
             catch (Exception ex)
             {
@@ -361,41 +425,51 @@ namespace SimpleNet.Data.Repository
         }
 
 
+
+        public async Task<int> ExecuteNonQueryAsync(string commandText, CommandType commandType, DbParameter[] parameters)
+        {
+            using (var connection = SqlConnectionInfo.GetConnection())
+            {
+                return await ExecuteNonQueryAsync(connection, commandText, commandType, parameters);
+            }
+        }
+
+
         /// <summary>
         /// Use this to execute a command against the database when a response is NOT needed 
         /// or we only need the count of number of records affected
         /// </summary>
+        /// <param name="connection"></param>
         /// <param name="commandText">The sql or procedure name to execute</param>
         /// <param name="commandType">The command type</param>
         /// <param name="parameters">An array || a list of parameters to pass to the command</param>
+        /// <param name="transaction"></param>
         /// <returns>The count of number of records affected.</returns>
-        public async Task<int> ExecuteNonQueryAsync(string commandText, CommandType commandType, DbParameter[] parameters)
+        public async Task<int> ExecuteNonQueryAsync(DbConnection connection, string commandText, CommandType commandType, DbParameter[] parameters, DbTransaction transaction = null)
         {
             int value;
 
             try
             {
-
-                using (var connection = SqlConnectionInfo.GetConnection())
+                using (var command = SqlConnectionInfo.CreateDbCommand(connection))
                 {
+                    command.CommandText = commandText;
+                    command.CommandType = commandType;
 
-                    using (var command = SqlConnectionInfo.CreateDbCommand(connection))
+
+                    if (transaction != null) command.Transaction = transaction;
+
+                    // Add parameters
+                    if (parameters != null)
                     {
-                        command.CommandText = commandText;
-                        command.CommandType = commandType;
-
-                        // Add parameters
-                        if (parameters != null)
-                        {
-                            command.Parameters.AddRange(parameters.ToArray());
-                        }
-
-                        value = await command.ExecuteNonQueryAsync();
-
-                        command.Parameters.Clear();
+                        command.Parameters.AddRange(parameters.ToArray());
                     }
 
+                    value = await command.ExecuteNonQueryAsync();
+
+                    command.Parameters.Clear();
                 }
+
             }
             catch (Exception ex)
             {
@@ -423,53 +497,73 @@ namespace SimpleNet.Data.Repository
 
         #endregion
 
+
+
         public IEnumerable<T> Read<T>(IRowMapper<T> mapper, string commandText, CommandType commandType, DbParameter[] parameters)
         {
             using (var connection = SqlConnectionInfo.GetConnection())
             {
-                using (var command = SqlConnectionInfo.CreateDbCommand(connection))
-                {
-                    command.CommandText = commandText;
-                    command.CommandType = commandType;
-                    // Add parameters
-                    if (parameters != null) command.Parameters.AddRange(parameters.ToArray());
-
-                    using (IDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            yield return mapper.MapRow(reader);
-                        }
-                    }
-
-                    command.Parameters.Clear();
-                }
+                return Read(connection, mapper, commandText, commandType, parameters);
             }
         }
 
-        public async Task< IEnumerable<T> > ReadAsync<T>(IRowMapper<T> mapper, string commandText, CommandType commandType, DbParameter[] parameters)
+        public IEnumerable<T> Read<T>(DbConnection connection, IRowMapper<T> mapper, string commandText, CommandType commandType, DbParameter[] parameters, DbTransaction transaction = null)
+        {
+            using (var command = SqlConnectionInfo.CreateDbCommand(connection))
+            {
+                command.CommandText = commandText;
+                command.CommandType = commandType;
+                
+                if (transaction != null) command.Transaction = transaction;
+                
+                // Add parameters
+                if (parameters != null) command.Parameters.AddRange(parameters.ToArray());
+
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        yield return mapper.MapRow(reader);
+                    }
+                }
+
+                command.Parameters.Clear();
+            }
+        }
+
+
+        public async Task<IEnumerable<T>> ReadAsync<T>(IRowMapper<T> mapper, string commandText, CommandType commandType,
+            DbParameter[] parameters)
+        {
+            using (var connection = SqlConnectionInfo.GetConnection())
+            {
+                return await ReadAsync(connection, mapper, commandText, commandType, parameters);
+            }
+        }
+
+        public async Task<IEnumerable<T>> ReadAsync<T>(DbConnection connection, IRowMapper<T> mapper, string commandText, CommandType commandType, DbParameter[] parameters, DbTransaction transaction = null)
         {
             var results = new List<T>();
 
-            using (var connection = SqlConnectionInfo.GetConnection())
+            using (var command = SqlConnectionInfo.CreateDbCommand(connection))
             {
-                using (var command = SqlConnectionInfo.CreateDbCommand(connection))
+                command.CommandText = commandText;
+                command.CommandType = commandType;
+
+
+                if (transaction != null) command.Transaction = transaction;
+                // Add parameters
+                if (parameters != null) command.Parameters.AddRange(parameters.ToArray());
+
+                using (IDataReader reader = await command.ExecuteReaderAsync())
                 {
-                    command.CommandText = commandText;
-                    command.CommandType = commandType;
-                    // Add parameters
-                    if (parameters != null) command.Parameters.AddRange(parameters.ToArray());
-
-                    using (IDataReader reader = await command.ExecuteReaderAsync())
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            results.Add(mapper.MapRow(reader));
-                        }
+                        results.Add(mapper.MapRow(reader));
                     }
-
-                    command.Parameters.Clear();
                 }
+
+                command.Parameters.Clear();
             }
 
             return results;

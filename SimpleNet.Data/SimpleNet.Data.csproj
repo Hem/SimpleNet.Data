@@ -64,6 +64,7 @@
     <Compile Include="Repository\Contracts\IAsyncDataAccessor.cs" />
     <Compile Include="Repository\Contracts\ISimpleDataAccess.cs" />
     <Compile Include="Repository\Contracts\ISyncDataAccess.cs" />
+    <Compile Include="Repository\Contracts\ISyncDataAccessor.cs" />
     <Compile Include="Repository\SimpleDataAccess.cs" />
     <Compile Include="Repository\Contracts\IRepository.cs" />
     <Compile Include="Repository\AbstractSimpleSqlRepository.cs" />

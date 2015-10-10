@@ -9,5 +9,8 @@ namespace SimpleNet.Data.Repository.Contracts
     public interface IAsyncDataAccessor
     {
         Task<IEnumerable<T>> ReadAsync<T>(IRowMapper<T> mapper, string commandText, CommandType commandType, DbParameter[] parameters);
+
+
+        Task<IEnumerable<T>> ReadAsync<T>(DbConnection connection, IRowMapper<T> mapper,  string commandText, CommandType commandType, DbParameter[] parameters, DbTransaction transaction = null);
     }
 }
