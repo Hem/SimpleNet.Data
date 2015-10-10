@@ -48,12 +48,15 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+          <Private>False</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="DataAccessBestPractice.cs" />
+    <Compile Include="DatabaseConnectionAndTransactionUnitTest.cs" />
+    <Content Include="DataAccessBestPractice.cs.txt" />
     <Compile Include="Dto\State.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

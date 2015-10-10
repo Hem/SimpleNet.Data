@@ -11,6 +11,10 @@ namespace SimpleNet.Data.Repository
     {
         public abstract ISimpleDataAccess Database { get; set; }
 
+        protected DbConnection GetConnection()
+        {
+            return Database.GetConnection();
+        }
 
         protected IEnumerable<T> Read<T>(DbConnection connection, IRowMapper<T> mapper, string commandText, CommandType commandType, DbParameter[] parameters, DbTransaction transaction = null)
         {

@@ -591,6 +591,11 @@ namespace SimpleNet.Data.Repository
             return SqlConnectionInfo.GetDbParameter(name, value, direction);
         }
 
+        public DbConnection GetConnection()
+        {
+            return SqlConnectionInfo.GetConnection();
+        }
+
         #endregion
 
         public void Dispose()

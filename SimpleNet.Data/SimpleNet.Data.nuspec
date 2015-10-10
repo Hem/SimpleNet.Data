@@ -2,16 +2,23 @@
 <package >
   <metadata>
     <id>SimpleNet.Data.dll</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <authors>Hem Talreja</authors>
     <owners>Hem Talreja</owners>
 	<title>SimpleNet Data Access</title>
     <licenseUrl>https://github.com/Hem/SimpleNet.Data</licenseUrl>
-    <projectUrl>hhttps://github.com/Hem/SimpleNet.Data</projectUrl>
-    <iconUrl>hhttps://github.com/Hem/SimpleNet.Data</iconUrl>
+    <projectUrl>https://github.com/Hem/SimpleNet.Data</projectUrl>
+    <iconUrl>https://github.com/Hem/SimpleNet.Data</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Simplified dataaccess layer with Enterprise Library's Sql Accessor Implementation</description>
-    <releaseNotes>Initial Release</releaseNotes>
+    <description>
+      Simplified dataaccess layer with Enterprise Library's Sql Accessor Implementation.
+      Please visit https://github.com/Hem/SimpleNet.Data for more information
+    </description>
+    <releaseNotes>
+        1.0.0 : Ability to Read, Execute Scalar, Execute Non Query
+        1.0.1 : Bug Fixed
+        1.0.2 : Support for database transactions and executing multiple commands across a single connection.
+    </releaseNotes>
     <copyright>Copyright 2015</copyright>
     <tags>ADO.NET Database</tags>
   </metadata>
