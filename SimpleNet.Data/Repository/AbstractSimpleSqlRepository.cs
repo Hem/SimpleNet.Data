@@ -9,12 +9,12 @@ namespace SimpleNet.Data.Repository
 {
     public abstract class AbstractSimpleSqlRepository
     {
-        public  abstract ISimpleDataAccess Database { get; set; }
+        public abstract ISimpleDataAccess Database { get; set; }
 
 
-        protected IEnumerable<T> Read<T>(DbConnection connection, IRowMapper<T> mapper, string commandText, CommandType commandType, DbParameter[] parameters)
+        protected IEnumerable<T> Read<T>(DbConnection connection, IRowMapper<T> mapper, string commandText, CommandType commandType, DbParameter[] parameters, DbTransaction transaction = null)
         {
-            return Database.Read(connection, mapper, commandText, commandType, parameters);
+            return Database.Read(connection, mapper, commandText, commandType, parameters, transaction);
         }
 
         protected IEnumerable<T> Read<T>(IRowMapper<T> mapper, string commandText, CommandType commandType, DbParameter[] parameters)
@@ -24,9 +24,9 @@ namespace SimpleNet.Data.Repository
 
 
         protected Task<IEnumerable<T>> ReadAsync<T>(DbConnection connection, IRowMapper<T> mapper, string commandText, CommandType commandType,
-            DbParameter[] parameters)
+            DbParameter[] parameters, DbTransaction transaction = null)
         {
-            return Database.ReadAsync(connection, mapper, commandText, commandType, parameters);
+            return Database.ReadAsync(connection, mapper, commandText, commandType, parameters, transaction);
         }
 
         protected Task<IEnumerable<T>> ReadAsync<T>(IRowMapper<T> mapper, string commandText, CommandType commandType,
@@ -36,9 +36,9 @@ namespace SimpleNet.Data.Repository
         }
 
 
-        protected int ExecuteNonQuery(DbConnection connection, string commandText, CommandType commandType, DbParameter[] parameters)
+        protected int ExecuteNonQuery(DbConnection connection, string commandText, CommandType commandType, DbParameter[] parameters, DbTransaction transaction = null)
         {
-            return Database.ExecuteNonQuery(connection, commandText, commandType, parameters);
+            return Database.ExecuteNonQuery(connection, commandText, commandType, parameters, transaction);
         }
 
 
@@ -48,9 +48,9 @@ namespace SimpleNet.Data.Repository
         }
 
 
-        protected object ExecuteScalar(DbConnection connection, string commandText, CommandType commandType, DbParameter[] parameters)
+        protected object ExecuteScalar(DbConnection connection, string commandText, CommandType commandType, DbParameter[] parameters, DbTransaction transaction = null)
         {
-            return Database.ExecuteScalar(connection, commandText, commandType, parameters);
+            return Database.ExecuteScalar(connection, commandText, commandType, parameters, transaction);
         }
 
         protected object ExecuteScalar(string commandText, CommandType commandType, DbParameter[] parameters)
@@ -59,9 +59,9 @@ namespace SimpleNet.Data.Repository
         }
 
 
-        protected DataTable Read(DbConnection connection, string commandText, CommandType commandType, DbParameter[] parameters)
+        protected DataTable Read(DbConnection connection, string commandText, CommandType commandType, DbParameter[] parameters, DbTransaction transaction = null)
         {
-            return Database.Read(connection, commandText, commandType, parameters);
+            return Database.Read(connection, commandText, commandType, parameters, transaction);
         }
 
         protected DataTable Read(string commandText, CommandType commandType, DbParameter[] parameters)
