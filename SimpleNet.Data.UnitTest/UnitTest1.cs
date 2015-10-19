@@ -7,7 +7,7 @@ using Sample.Net.Core.Data.UnitTest.Dto;
 using SimpleNet.Data.Mapper;
 using SimpleNet.Data.Repository;
 
-namespace Sample.Net.Core.Data.UnitTest
+namespace SampleNet.Data.UnitTest
 {
     [TestClass]
     public class UnitTest1
