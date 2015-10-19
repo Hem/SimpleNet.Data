@@ -509,6 +509,8 @@ namespace SimpleNet.Data.Repository
 
         public IEnumerable<T> Read<T>(DbConnection connection, IRowMapper<T> mapper, string commandText, CommandType commandType, DbParameter[] parameters, DbTransaction transaction = null)
         {
+            var records = new List<T>();
+
             using (var command = SqlConnectionInfo.CreateDbCommand(connection))
             {
                 command.CommandText = commandText;
@@ -523,12 +525,14 @@ namespace SimpleNet.Data.Repository
                 {
                     while (reader.Read())
                     {
-                        yield return mapper.MapRow(reader);
+                        records.Add(mapper.MapRow(reader));
                     }
                 }
 
                 command.Parameters.Clear();
             }
+
+            return records;
         }
 
 
@@ -543,7 +547,7 @@ namespace SimpleNet.Data.Repository
 
         public async Task<IEnumerable<T>> ReadAsync<T>(DbConnection connection, IRowMapper<T> mapper, string commandText, CommandType commandType, DbParameter[] parameters, DbTransaction transaction = null)
         {
-            var results = new List<T>();
+            var records = new List<T>();
 
             using (var command = SqlConnectionInfo.CreateDbCommand(connection))
             {
@@ -559,14 +563,14 @@ namespace SimpleNet.Data.Repository
                 {
                     while (reader.Read())
                     {
-                        results.Add(mapper.MapRow(reader));
+                        records.Add(mapper.MapRow(reader));
                     }
                 }
 
                 command.Parameters.Clear();
             }
 
-            return results;
+            return records;
         }
 
 
